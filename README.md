@@ -1,5 +1,7 @@
 # coletor-taxas
 
+[![Coleta semanal](https://github.com/Jonqry/coletor-taxas/actions/workflows/coleta.yml/badge.svg)](https://github.com/Jonqry/coletor-taxas/actions/workflows/coleta.yml)
+
 ## O problema
 
 Meu simulador de financiamento imobiliário (React + TypeScript) usa taxas de referência digitadas à mão (`taxasReferencia.ts`). Quando o governo ou o Banco Central mudam um número, o simulador fica desatualizado e eu só descubro por acaso.
