@@ -13,13 +13,13 @@ jobs:
   coletar:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
       - run: pip install -r requirements.txt && playwright install --with-deps chromium
       - run: python -m pytest -q
-      - run: python coletor.py | tee mudancas.txt
+      - run: set -o pipefail; python coletor.py | tee mudancas.txt
       - name: Commitar e abrir issue se algo mudou
         env:
           GH_TOKEN: ${{ github.token }}
