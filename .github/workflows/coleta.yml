@@ -1,0 +1,33 @@
+name: Coleta semanal
+
+on:
+  schedule:
+    - cron: "17 11 * * 1" # toda segunda, 08:17 em Brasília
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  coletar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install -r requirements.txt && playwright install --with-deps chromium
+      - run: python -m pytest -q
+      - run: python coletor.py | tee mudancas.txt
+      - name: Commitar e abrir issue se algo mudou
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add dados.json
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Coleta de $(date +%F): taxas mudaram"
+          git push
+          gh issue create --title "Taxas mudaram ($(date +%F))" --body-file mudancas.txt

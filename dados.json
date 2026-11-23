@@ -1,0 +1,38 @@
+{
+  "sgs": {
+    "tr_mensal": "0.1196",
+    "selic_meta": "13.75",
+    "ipca_mensal": "0.14"
+  },
+  "mcmv_tabela_juros": [
+    "FAIXAS DE RENDA/PROGRAMA | RENDA FAMILIAR MENSAL BRUTA | TAXA DE JUROS NOMINAL | TAXA DE JUROS NOMINAL",
+    "(cotistas) | (não cotistas)",
+    "N e NE | S, SE e CO | N e NE | S, SE e CO",
+    "Faixa 1 | até R$ 2.160,00 | 4,00% | 4,25% | 4,50% | 4,75%",
+    "de R$ 2.160,01 a R$ 2.850,00 | 4,25% | 4,50% | 4,75% | 5,00%",
+    "de R$ 2.850,01 a R$ 3.200,00 | 4,50% | 4,75% | 5,00% | 5,25%",
+    "Faixa 2 | de R$ 3.200,01 a R$ 3.500,00 | 4,75% | 5,00% | 5,25% | 5,50%",
+    "de R$ 3.500,01 a R$ 4.000,00 | 5,50% | 6,00%",
+    "de R$ 4.000,01 a R$ 5.000,00 | 6,50% | 7,00%",
+    "Faixa 3 | de R$ 5.000,01 a R$ 9.600,00 | 7,66% | 8,16%",
+    "Classe Média | até R$ 13.000,00 | 10,00%",
+    "Pró-Cotista | sem limite de renda* | 8,66% | -"
+  ],
+  "bcb_financiamento_tr": {
+    "periodo": "01/10/2026 a 31/10/2026",
+    "taxas_aa": {
+      "BCO DO EST. DO PA S.A.": "10,00",
+      "BCO DO ESTADO DO RS S.A.": "10,49",
+      "BCO BANESTES S.A.": "10,71",
+      "BANCO SICOOB S.A.": "10,93",
+      "BCO DO EST. DE SE S.A.": "11,35",
+      "CAIXA ECONOMICA FEDERAL": "11,97",
+      "ITAÚ UNIBANCO S.A.": "12,22",
+      "BANCO COOPERATIVO SICREDI": "12,23",
+      "BCO BRADESCO S.A.": "12,27",
+      "BCO SANTANDER (BRASIL) S.A.": "12,32",
+      "BANCO INTER": "12,97",
+      "BCO DO BRASIL S.A.": "14,42"
+    }
+  }
+}
