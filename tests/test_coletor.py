@@ -44,7 +44,7 @@ def test_main_salva_json_e_mostra_mudancas(tmp_path, monkeypatch, capsys):
     arquivo = tmp_path / "dados.json"
     arquivo.write_text(json.dumps({"sgs": {"selic_meta": "13.75"}}), "utf-8")
     monkeypatch.setattr(coletor, "ARQUIVO", arquivo)
-    monkeypatch.setattr(coletor, "coletar", lambda: {"sgs": {"selic_meta": "13.50"}})
+    monkeypatch.setattr(coletor, "coletar", lambda anterior: ({"sgs": {"selic_meta": "13.50"}}, []))
 
     coletor.main()
 
