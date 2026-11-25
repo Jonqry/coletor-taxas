@@ -9,6 +9,7 @@ from playwright.sync_api import sync_playwright
 
 USER_AGENT = "coletor-taxas/1.0 (projeto de portfolio; +https://github.com/Jonqry/coletor-taxas)"
 INTERVALO = 2  # segundos entre requisições
+TENTATIVAS = 3  # tentativas por requisição antes de desistir da fonte
 ARQUIVO = Path(__file__).parent / "dados.json"
 
 SERIES_SGS = {"tr_mensal": 7811, "selic_meta": 432, "ipca_mensal": 433}
@@ -69,10 +70,16 @@ def diferencas(antes, depois, prefixo=""):
 
 
 def _get(sessao, url):
-    time.sleep(INTERVALO)
-    resposta = sessao.get(url, timeout=30)
-    resposta.raise_for_status()
-    return resposta
+    """GET com novas tentativas: sites do governo às vezes derrubam a conexão de servidores na nuvem."""
+    for tentativa in range(1, TENTATIVAS + 1):
+        time.sleep(INTERVALO * tentativa)
+        try:
+            resposta = sessao.get(url, timeout=30)
+            resposta.raise_for_status()
+            return resposta
+        except (requests.ConnectionError, requests.Timeout):
+            if tentativa == TENTATIVAS:
+                raise
 
 
 def _html_renderizado(url):
@@ -86,20 +93,49 @@ def _html_renderizado(url):
     return html
 
 
-def coletar():
+def _coletar_sgs(sessao):
+    return {nome: parse_sgs(_get(sessao, URL_SGS.format(codigo)).json()) for nome, codigo in SERIES_SGS.items()}
+
+
+def _coletar_mcmv(sessao):
+    return parse_mcmv(_get(sessao, URL_MCMV).text)
+
+
+def _coletar_txjuros(sessao):
+    time.sleep(INTERVALO)
+    return parse_txjuros(_html_renderizado(URL_BCB_TXJUROS))
+
+
+FONTES = {
+    "sgs": _coletar_sgs,
+    "mcmv_tabela_juros": _coletar_mcmv,
+    "bcb_financiamento_tr": _coletar_txjuros,
+}
+
+
+def coletar(anterior, fontes=FONTES):
+    """Coleta cada fonte. Se uma falhar, mantém o valor da coleta anterior e segue com as outras."""
+    atual, falhas = {}, []
     with requests.Session() as sessao:
         sessao.headers["User-Agent"] = USER_AGENT
-        sgs = {nome: parse_sgs(_get(sessao, URL_SGS.format(codigo)).json()) for nome, codigo in SERIES_SGS.items()}
-        mcmv = parse_mcmv(_get(sessao, URL_MCMV).text)
-    time.sleep(INTERVALO)
-    txjuros = parse_txjuros(_html_renderizado(URL_BCB_TXJUROS))
-    return {"sgs": sgs, "mcmv_tabela_juros": mcmv, "bcb_financiamento_tr": txjuros}
+        for chave, buscar in fontes.items():
+            try:
+                atual[chave] = buscar(sessao)
+            except Exception as erro:
+                falhas.append(f"{chave}: {erro}")
+                if chave in anterior:
+                    atual[chave] = anterior[chave]
+    if len(falhas) == len(fontes):
+        raise RuntimeError("Todas as fontes falharam:\n" + "\n".join(falhas))
+    return atual, falhas
 
 
 def main():
     anterior = json.loads(ARQUIVO.read_text("utf-8")) if ARQUIVO.exists() else {}
-    atual = coletar()
+    atual, falhas = coletar(anterior)
     ARQUIVO.write_text(json.dumps(atual, ensure_ascii=False, indent=2) + "\n", "utf-8")
+    for falha in falhas:
+        print(f"::warning::Fonte indisponível, mantido o valor anterior. {falha}")
     print("\n".join(diferencas(anterior, atual)) or "Nada mudou.")
 
 
